@@ -1,0 +1,1140 @@
+// src/styles/main.scss
+@use './variables' as *;
+@use 'sass:color';
+
+// Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+// Bootstrap
+@import 'bootstrap/scss/bootstrap';
+
+// =========================================
+// RESET & BASE
+// =========================================
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: $font-body;
+  background: $nav-dark;
+  color: $text-primary;
+  overflow: hidden;
+  height: 100dvh;
+  width: 100vw;
+}
+
+#root { height: 100dvh; width: 100vw; }
+
+// =========================================
+// APP LAYOUT
+// =========================================
+.app-wrapper {
+  width: 100%;
+  height: 100dvh;
+  position: relative;
+}
+
+// =========================================
+// MAP — fixed, starts after panel
+// =========================================
+.map-container {
+  position: fixed;
+  top: 0;
+  left: 380px;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+
+  .leaflet-container {
+    width: 100%;
+    height: 100%;
+    background: #0d1117;
+  }
+}
+
+// =========================================
+// SIDE PANEL — fixed left column
+// =========================================
+.nav-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: $panel-width;
+  height: 100dvh;
+  background: $nav-darker;
+  border-right: 1px solid $nav-border;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  box-shadow: $shadow-panel;
+  overflow: hidden;
+}
+
+// =========================================
+// PANEL HEADER
+// =========================================
+.panel-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid $nav-border;
+  background: linear-gradient(180deg, rgba(0,212,255,0.04) 0%, transparent 100%);
+  flex-shrink: 0;
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, $accent-cyan, $accent-green);
+      border-radius: $radius-sm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 0 12px rgba(0, 212, 255, 0.4);
+    }
+
+    .brand-name {
+      font-family: $font-display;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: $text-primary;
+      text-transform: uppercase;
+
+      span { color: $accent-cyan; }
+    }
+  }
+
+  .brand-tagline {
+    font-size: 11px;
+    color: $text-muted;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding-left: 46px;
+  }
+}
+
+// =========================================
+// TRAVEL MODE TABS
+// =========================================
+.mode-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 14px 24px;
+  border-bottom: 1px solid $nav-border;
+  flex-shrink: 0;
+
+  .mode-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 6px;
+    border-radius: $radius-sm;
+    border: 1px solid transparent;
+    background: transparent;
+    color: $text-muted;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+
+    .mode-icon { font-size: 18px; }
+
+    &:hover {
+      background: rgba(255,255,255,0.04);
+      color: $text-secondary;
+    }
+
+    &.active {
+      background: rgba(0, 212, 255, 0.1);
+      border-color: rgba(0, 212, 255, 0.3);
+      color: $accent-cyan;
+      box-shadow: 0 0 10px rgba(0, 212, 255, 0.1);
+    }
+  }
+}
+
+// =========================================
+// SEARCH PANEL
+// =========================================
+.search-section {
+  padding: 16px 24px;
+  border-bottom: 1px solid $nav-border;
+  flex-shrink: 0;
+  position: relative;
+
+  .search-connector {
+    position: absolute;
+    left: 36px;
+    top: 52px;
+    bottom: 52px;
+    width: 2px;
+    background: linear-gradient(180deg, $accent-cyan, $accent-green);
+    border-radius: 2px;
+    opacity: 0.4;
+  }
+}
+
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  position: relative;
+
+  .search-dot {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    z-index: 1;
+
+    &.origin {
+      background: rgba(0, 212, 255, 0.15);
+      border: 2px solid $accent-cyan;
+      color: $accent-cyan;
+    }
+
+    &.destination {
+      background: rgba(0, 255, 157, 0.15);
+      border: 2px solid $accent-green;
+      color: $accent-green;
+    }
+  }
+
+  .search-input-wrapper {
+    flex: 1;
+    position: relative;
+
+    input {
+      width: 100%;
+      background: $nav-surface;
+      border: 1px solid $nav-border;
+      border-radius: $radius-sm;
+      padding: 10px 36px 10px 14px;
+      color: $text-primary;
+      font-size: 13px;
+      font-family: $font-body;
+      transition: all 0.2s ease;
+      outline: none;
+
+      &::placeholder { color: $text-muted; }
+
+      &:focus {
+        border-color: $accent-cyan;
+        box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.1);
+        background: $nav-surface-2;
+      }
+    }
+
+    .input-clear {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: $text-muted;
+      color: $nav-darker;
+      border: none;
+      cursor: pointer;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+
+      &.visible { opacity: 1; }
+      &:hover { background: $text-secondary; }
+    }
+  }
+
+  .location-btn {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    background: rgba(0, 212, 255, 0.08);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: $radius-sm;
+    color: $accent-cyan;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(0, 212, 255, 0.16);
+      box-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
+    }
+
+    &.loading { animation: pulse 1s infinite; }
+  }
+}
+
+// =========================================
+// SUGGESTIONS DROPDOWN
+// =========================================
+.suggestions-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: $nav-surface;
+  border: 1px solid $nav-border;
+  border-radius: $radius-md;
+  z-index: 2000;
+  overflow: hidden;
+  box-shadow: $shadow-panel;
+  animation: slideDown 0.15s ease;
+
+  .suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+
+    &:last-child { border-bottom: none; }
+
+    &:hover, &.highlighted {
+      background: rgba(0, 212, 255, 0.06);
+    }
+
+    .sug-icon {
+      width: 30px;
+      height: 30px;
+      background: $nav-surface-2;
+      border-radius: $radius-sm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .sug-info {
+      flex: 1;
+      min-width: 0;
+
+      .sug-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: $text-primary;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .sug-detail {
+        font-size: 11px;
+        color: $text-muted;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 1px;
+      }
+    }
+
+    .sug-type {
+      font-size: 10px;
+      color: $accent-cyan;
+      background: rgba(0, 212, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .suggestions-loading {
+    padding: 14px;
+    text-align: center;
+    color: $text-muted;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+}
+
+// =========================================
+// ROUTE CTA
+// =========================================
+.route-cta {
+  padding: 12px 24px;
+  flex-shrink: 0;
+
+  .btn-navigate {
+    width: 100%;
+    background: linear-gradient(135deg, $accent-cyan, $accent-green);
+    border: none;
+    border-radius: $radius-sm;
+    padding: 13px;
+    color: $nav-darker;
+    font-family: $font-display;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(0, 212, 255, 0.35);
+    }
+
+    &:active { transform: translateY(0); }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    &.loading {
+      background: $nav-surface-2;
+      color: $text-secondary;
+    }
+  }
+}
+
+// =========================================
+// ROUTE INFO
+// =========================================
+.route-info-bar {
+  padding: 12px 24px;
+  border-top: 1px solid $nav-border;
+  border-bottom: 1px solid $nav-border;
+  background: rgba(0, 212, 255, 0.03);
+  flex-shrink: 0;
+
+  .route-stats {
+    display: flex;
+    background: $nav-surface;
+    border: 1px solid $nav-border;
+    border-radius: $radius-sm;
+    overflow: hidden;
+
+    .stat {
+      flex: 1;
+      text-align: center;
+      padding: 10px 8px;
+      border-right: 1px solid $nav-border;
+
+      &:last-child { border-right: none; }
+
+      .stat-value {
+        font-family: $font-display;
+        font-size: 18px;
+        font-weight: 700;
+        color: $accent-cyan;
+        line-height: 1;
+      }
+
+      .stat-label {
+        font-size: 10px;
+        color: $text-muted;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 3px;
+      }
+    }
+  }
+}
+
+// =========================================
+// TURN-BY-TURN DIRECTIONS
+// =========================================
+.directions-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: $nav-border; border-radius: 2px; }
+
+  .directions-header {
+    padding: 8px 24px;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: $text-muted;
+    font-weight: 600;
+  }
+
+  .step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 24px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+
+    &:hover { background: rgba(255,255,255,0.02); }
+    &.active { background: rgba(0, 212, 255, 0.05); }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      background: $nav-surface;
+      border: 1px solid $nav-border;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: $text-muted;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-content {
+      flex: 1;
+
+      .step-instruction {
+        font-size: 13px;
+        color: $text-primary;
+        line-height: 1.4;
+      }
+
+      .step-meta {
+        display: flex;
+        gap: 10px;
+        margin-top: 4px;
+
+        span { font-size: 11px; color: $text-muted; }
+      }
+    }
+
+    .step-maneuver {
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+  }
+}
+
+// =========================================
+// MAP OVERLAYS
+// =========================================
+.map-top-bar {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.map-btn {
+  width: 42px;
+  height: 42px;
+  background: $nav-surface;
+  border: 1px solid $nav-border;
+  border-radius: $radius-sm;
+  color: $text-primary;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  box-shadow: $shadow-card;
+
+  &:hover {
+    background: $nav-surface-2;
+    border-color: $accent-cyan;
+    color: $accent-cyan;
+  }
+}
+
+.pulse-marker {
+  width: 16px;
+  height: 16px;
+  background: $accent-cyan;
+  border-radius: 50%;
+  border: 3px solid $nav-darker;
+  box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.6);
+  animation: markerPulse 1.5s infinite;
+}
+
+// =========================================
+// ACTIVE NAVIGATION HUD
+// =========================================
+.nav-hud {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 900;
+  width: 240px;
+  background: $nav-surface;
+  border: 1px solid $nav-border;
+  border-radius: $radius-md;
+  padding: 14px 16px;
+  box-shadow: $shadow-panel;
+
+  .hud-label {
+    font-size: 10px;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .hud-instruction {
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-primary;
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+
+  .hud-stats {
+    display: flex;
+    justify-content: space-between;
+
+    .hud-stat {
+      .val {
+        font-family: $font-display;
+        font-size: 20px;
+        font-weight: 700;
+        color: $accent-cyan;
+      }
+      .unit {
+        font-size: 10px;
+        color: $text-muted;
+        margin-left: 2px;
+      }
+    }
+  }
+
+  .hud-stop {
+    width: 100%;
+    margin-top: 10px;
+    background: rgba(255, 107, 53, 0.1);
+    border: 1px solid rgba(255, 107, 53, 0.3);
+    color: $accent-orange;
+    border-radius: $radius-sm;
+    padding: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+
+    &:hover { background: rgba(255, 107, 53, 0.2); }
+  }
+}
+
+// =========================================
+// STATUS BAR
+// =========================================
+.status-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  background: $nav-darker;
+  border-top: 1px solid $nav-border;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 16px;
+  font-size: 10px;
+  color: $text-muted;
+  z-index: 800;
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: $accent-green;
+    animation: blink 2s infinite;
+  }
+
+  .status-sep { opacity: 0.3; }
+}
+
+// =========================================
+// LOADING & EMPTY STATES
+// =========================================
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  text-align: center;
+  color: $text-muted;
+
+  .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+  .empty-title { font-size: 14px; font-weight: 500; color: $text-secondary; margin-bottom: 6px; }
+  .empty-sub { font-size: 12px; line-height: 1.5; }
+}
+
+// =========================================
+// LEAFLET CUSTOM MARKERS
+// =========================================
+.custom-marker {
+  background: none;
+  border: none;
+
+  &-inner {
+    width: 28px;
+    height: 28px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+
+    &.origin { background: $accent-cyan; }
+    &.destination { background: $accent-green; }
+
+    span { transform: rotate(45deg); font-size: 12px; }
+  }
+}
+
+// =========================================
+// ANIMATIONS
+// =========================================
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@keyframes markerPulse {
+  0%   { box-shadow: 0 0 0 0   rgba(0, 212, 255, 0.6); }
+  70%  { box-shadow: 0 0 0 12px rgba(0, 212, 255, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(0, 212, 255, 0); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 212, 255, 0.3);
+  border-top-color: $accent-cyan;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+// =========================================
+// TOAST NOTIFICATION
+// =========================================
+.toast-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+
+  .nav-toast {
+    background: $nav-surface;
+    border: 1px solid $nav-border;
+    border-radius: $radius-sm;
+    padding: 10px 16px;
+    font-size: 13px;
+    color: $text-primary;
+    box-shadow: $shadow-panel;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: slideDown 0.2s ease;
+
+    &.error   { border-color: rgba(255, 107, 53, 0.5); color: $accent-orange; }
+    &.success { border-color: rgba(0, 255, 157, 0.4);  color: $accent-green; }
+  }
+}
+
+// =========================================
+// PANEL TABS (Route / Saved)
+// =========================================
+.panel-tabs {
+  display: flex;
+  border-bottom: 1px solid $nav-border;
+  flex-shrink: 0;
+
+  .ptab {
+    flex: 1;
+    padding: 10px 8px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: $text-muted;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover { color: $text-secondary; background: rgba(255,255,255,0.02); }
+
+    &.active {
+      color: $accent-cyan;
+      border-bottom-color: $accent-cyan;
+      background: rgba(0,212,255,0.04);
+    }
+  }
+}
+
+// =========================================
+// SAVE PLACE BUTTON
+// =========================================
+.save-place-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 7px;
+  background: transparent;
+  border: 1px dashed rgba(0,212,255,0.3);
+  border-radius: $radius-sm;
+  color: $text-muted;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+
+  &:hover {
+    border-color: $accent-cyan;
+    color: $accent-cyan;
+    background: rgba(0,212,255,0.05);
+  }
+}
+
+// =========================================
+// FAVORITES PANEL
+// =========================================
+.favorites-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 12px 0;
+
+  .fav-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px 10px;
+
+    .fav-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: $text-muted;
+    }
+
+    .fav-add-btn {
+      font-size: 11px;
+      padding: 4px 10px;
+      background: rgba(0,212,255,0.1);
+      border: 1px solid rgba(0,212,255,0.3);
+      border-radius: $radius-sm;
+      color: $accent-cyan;
+      cursor: pointer;
+      &:hover { background: rgba(0,212,255,0.2); }
+    }
+  }
+
+  .fav-save-form {
+    margin: 0 24px 12px;
+    background: $nav-surface;
+    border: 1px solid $nav-border;
+    border-radius: $radius-md;
+    padding: 12px;
+
+    .fav-icon-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+
+      .icon-opt {
+        width: 32px;
+        height: 32px;
+        background: $nav-surface-2;
+        border: 1px solid transparent;
+        border-radius: $radius-sm;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s ease;
+
+        &:hover { border-color: $nav-border; }
+        &.selected {
+          border-color: $accent-cyan;
+          background: rgba(0,212,255,0.1);
+          box-shadow: 0 0 6px rgba(0,212,255,0.2);
+        }
+      }
+    }
+
+    .fav-save-row {
+      display: flex;
+      gap: 6px;
+
+      .fav-name-input {
+        flex: 1;
+        background: $nav-surface-2;
+        border: 1px solid $nav-border;
+        border-radius: $radius-sm;
+        padding: 7px 10px;
+        color: $text-primary;
+        font-size: 13px;
+        outline: none;
+        &:focus { border-color: $accent-cyan; }
+        &::placeholder { color: $text-muted; }
+      }
+
+      .fav-confirm-btn {
+        padding: 7px 12px;
+        background: linear-gradient(135deg, $accent-cyan, $accent-green);
+        border: none;
+        border-radius: $radius-sm;
+        color: $nav-darker;
+        font-weight: 700;
+        font-size: 12px;
+        cursor: pointer;
+        &:hover { opacity: 0.9; }
+      }
+
+      .fav-cancel-btn {
+        padding: 7px 10px;
+        background: $nav-surface-2;
+        border: 1px solid $nav-border;
+        border-radius: $radius-sm;
+        color: $text-muted;
+        cursor: pointer;
+        font-size: 12px;
+        &:hover { color: $accent-orange; }
+      }
+    }
+  }
+
+  .fav-empty {
+    padding: 24px;
+    text-align: center;
+    color: $text-muted;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .fav-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px;
+
+    &::-webkit-scrollbar { width: 4px; }
+    &::-webkit-scrollbar-thumb { background: $nav-border; border-radius: 2px; }
+
+    .fav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 8px;
+      border-radius: $radius-sm;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      transition: background 0.15s;
+
+      &:hover { background: rgba(255,255,255,0.02); }
+
+      .fav-icon {
+        width: 36px;
+        height: 36px;
+        background: $nav-surface-2;
+        border-radius: $radius-sm;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+
+      .fav-info {
+        flex: 1;
+        min-width: 0;
+
+        .fav-name {
+          font-size: 13px;
+          font-weight: 600;
+          color: $text-primary;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .fav-addr {
+          font-size: 11px;
+          color: $text-muted;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          margin-top: 2px;
+        }
+      }
+
+      .fav-actions {
+        display: flex;
+        gap: 4px;
+        flex-shrink: 0;
+
+        .fav-use-btn {
+          width: 26px;
+          height: 26px;
+          border-radius: 50%;
+          border: 1px solid rgba(0,212,255,0.3);
+          background: rgba(0,212,255,0.08);
+          color: $accent-cyan;
+          font-size: 10px;
+          font-weight: 700;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.15s;
+          &:hover { background: rgba(0,212,255,0.2); }
+
+          &.dest {
+            border-color: rgba(0,255,157,0.3);
+            background: rgba(0,255,157,0.08);
+            color: $accent-green;
+            &:hover { background: rgba(0,255,157,0.2); }
+          }
+        }
+
+        .fav-del-btn {
+          width: 26px;
+          height: 26px;
+          border-radius: 50%;
+          border: 1px solid transparent;
+          background: transparent;
+          color: $text-muted;
+          font-size: 10px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.15s;
+          &:hover { background: rgba(255,107,53,0.1); color: $accent-orange; border-color: rgba(255,107,53,0.3); }
+        }
+      }
+    }
+  }
+}
+
+// =========================================
+// MOBILE RESPONSIVE — single clean block
+// =========================================
+@media (max-width: 768px) {
+  .map-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 340px;
+    z-index: 1;
+  }
+
+  .nav-panel {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 340px;
+    max-height: 75dvh;
+    border-right: none;
+    border-top: 2px solid $nav-border;
+    border-radius: 20px 20px 0 0;
+    z-index: 500;
+    overflow-y: auto;
+
+    &::before {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 4px;
+      background: $nav-border;
+      border-radius: 2px;
+      margin: 10px auto 0;
+    }
+  }
+
+  .panel-header {
+    padding: 8px 16px 10px;
+    .brand-name { font-size: 18px; }
+    .brand-tagline { display: none; }
+  }
+
+  .mode-tabs    { padding: 8px 16px; }
+  .search-section { padding: 10px 16px; }
+  .route-cta    { padding: 8px 16px; }
+  .route-info-bar { padding: 8px 16px; }
+
+  .map-top-bar {
+    top: 8px;
+    right: 8px;
+  }
+
+  .nav-hud {
+    bottom: 350px;
+    left: 10px;
+    right: 10px;
+    width: auto;
+  }
+
+  .status-bar { display: none; }
+
+  .fav-save-form { margin: 0 16px 12px; }
+  .fav-list { padding: 0 8px; }
+}

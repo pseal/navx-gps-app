@@ -1,0 +1,45 @@
+// src/styles/_variables.scss
+
+// --- Brand Colors ---
+$nav-dark: #0a0e1a;
+$nav-darker: #060910;
+$nav-surface: #111827;
+$nav-surface-2: #1a2236;
+$nav-border: #1e2d45;
+
+$accent-cyan: #00d4ff;
+$accent-cyan-dim: #00a8cc;
+$accent-green: #00ff9d;
+$accent-green-dim: #00cc7e;
+$accent-orange: #ff6b35;
+$accent-yellow: #ffd700;
+
+$text-primary: #f0f4ff;
+$text-secondary: #8899bb;
+$text-muted: #4a5568;
+
+// --- Typography ---
+$font-display: 'Rajdhani', 'Exo 2', sans-serif;
+$font-body: 'Inter', system-ui, sans-serif;
+$font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+// --- Spacing ---
+$panel-width: 380px;
+$panel-width-sm: 340px;
+$header-h: 64px;
+$radius-sm: 6px;
+$radius-md: 12px;
+$radius-lg: 20px;
+
+// --- Bootstrap overrides ---
+$primary: $accent-cyan;
+$secondary: $nav-surface-2;
+$body-bg: $nav-dark;
+$body-color: $text-primary;
+$border-radius: $radius-sm;
+$font-family-base: $font-body;
+
+// Shadows
+$shadow-glow: 0 0 20px rgba(0, 212, 255, 0.15);
+$shadow-panel: 0 8px 32px rgba(0, 0, 0, 0.5);
+$shadow-card: 0 2px 12px rgba(0, 0, 0, 0.4);
