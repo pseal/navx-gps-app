@@ -16,6 +16,20 @@ import { voice } from './services/voice';
 interface ToastItem { id: number; message: string; type: 'info' | 'error' | 'success'; }
 
 const App: React.FC = () => {
+  // ── Mobile detection ─────────────────────────────────────────────────────────
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [showMap,  setShowMap]  = useState(window.innerWidth > 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (!mobile) setShowMap(true);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // ── Inputs ───────────────────────────────────────────────────────────────────
   const [originText,   setOriginText]   = useState('');
   const [destText,     setDestText]     = useState('');
@@ -29,9 +43,9 @@ const App: React.FC = () => {
   const [isLoadingRoute, setIsLoadingRoute] = useState(false);
 
   // ── Navigation ───────────────────────────────────────────────────────────────
-  const [isNavigating,  setIsNavigating]  = useState(false);
-  const [currentStep,   setCurrentStep]   = useState(0);
-  const [panToUser,     setPanToUser]     = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [currentStep,  setCurrentStep]  = useState(0);
+  const [panToUser,    setPanToUser]    = useState(false);
 
   // ── Map style ────────────────────────────────────────────────────────────────
   const [mapStyle, setMapStyle] = useState<'default' | 'satellite'>('default');
@@ -40,11 +54,10 @@ const App: React.FC = () => {
   const [voiceOn, setVoiceOn] = useState(true);
 
   // ── Favorites ────────────────────────────────────────────────────────────────
-  const [favorites,    setFavorites]    = useState<FavoritePlace[]>([]);
-  const [pendingSave,  setPendingSave]  = useState<SearchSuggestion | null>(null);
-  const [showFavs,     setShowFavs]     = useState(false);
+  const [favorites,   setFavorites]   = useState<FavoritePlace[]>([]);
+  const [pendingSave, setPendingSave] = useState<SearchSuggestion | null>(null);
 
-  // ── Panel tab (mobile) ───────────────────────────────────────────────────────
+  // ── Panel tab ────────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<'route' | 'favorites'>('route');
 
   // ── Toasts ───────────────────────────────────────────────────────────────────
@@ -64,27 +77,10 @@ const App: React.FC = () => {
     ? { lat: watchedPos.coords.latitude, lon: watchedPos.coords.longitude }
     : null;
 
-  // Auto-detect location on app load
-  useEffect(() => {
-    getLocation(async (lat, lon) => {
-      const suggestion = await reverseGeocode(lat, lon);
-      setOriginCoords({ lat, lon });
-      setOriginText(suggestion?.shortName || 'My Location');
-    });
-  }, []); // empty array = runs once on mount
-
-  // Auto-pan map to user location on first load
-useEffect(() => {
-  if (originCoords && !route) {
-    setPanToUser(true);
-    setTimeout(() => setPanToUser(false), 300);
-  }
-}, [originCoords]); // triggers when location first comes in
-
   // Load favorites on mount
   useEffect(() => { setFavorites(loadFavorites()); }, []);
 
-  // Voice: announce step changes during navigation
+  // Voice: announce step changes
   useEffect(() => {
     if (!isNavigating || !route) return;
     const step = route.steps[currentStep];
@@ -96,7 +92,7 @@ useEffect(() => {
     }
   }, [currentStep, isNavigating, route]);
 
-  // Auto-advance step based on GPS position
+  // Auto-advance step based on GPS
   useEffect(() => {
     if (isNavigating && userLocation && route) {
       const idx = snapToRoute(userLocation.lat, userLocation.lon, route.steps);
@@ -131,6 +127,7 @@ useEffect(() => {
     if (field === 'origin') { setOriginCoords(s.coordinates); setOriginText(s.shortName); }
     else                    { setDestCoords(s.coordinates);   setDestText(s.shortName); }
     setActiveTab('route');
+    if (isMobile) setShowMap(false);
   };
 
   const handleCalculateRoute = async () => {
@@ -146,6 +143,7 @@ useEffect(() => {
       if (result) {
         setRoute(result);
         showToast(`Route found: ${result.summary}`, 'success');
+        if (isMobile) setShowMap(true); // auto-show map when route found
       } else {
         showToast('No route found — try different locations', 'error');
       }
@@ -163,6 +161,7 @@ useEffect(() => {
     setPanToUser(true);
     voice.announceRouteStart(route.summary);
     showToast('Navigation started!', 'success');
+    if (isMobile) setShowMap(true);
   };
 
   const handleStopNavigation = () => {
@@ -193,34 +192,63 @@ useEffect(() => {
 
   const canRoute = !!originCoords && !!destCoords;
   const modes: { mode: TravelMode; label: string; icon: string }[] = [
-    { mode: 'driving', label: 'Drive',  icon: '🚗' },
-    { mode: 'walking', label: 'Walk',   icon: '🚶' },
-    { mode: 'cycling', label: 'Cycle',  icon: '🚴' },
+    { mode: 'driving', label: 'Drive', icon: '🚗' },
+    { mode: 'walking', label: 'Walk',  icon: '🚶' },
+    { mode: 'cycling', label: 'Cycle', icon: '🚴' },
   ];
+
+  // ── Mobile layout styles ──────────────────────────────────────────────────────
+  const mobileMapStyle: React.CSSProperties | undefined = isMobile ? {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: showMap ? '42vh' : '100vh',
+    zIndex: 1,
+    transition: 'bottom 0.35s ease',
+  } : undefined;
+
+  const mobilePanelStyle: React.CSSProperties | undefined = isMobile ? {
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    top: showMap ? '58vh' : 0,
+    width: '100%',
+    height: showMap ? '42vh' : '100dvh',
+    zIndex: 500,
+    overflowY: 'auto',
+    transition: 'all 0.35s ease',
+    borderRadius: showMap ? '20px 20px 0 0' : 0,
+    borderTop: showMap ? '2px solid #1e2d45' : 'none',
+  } : undefined;
 
   return (
     <div className="app-wrapper">
-      {/* ── Side Panel ──────────────────────────────────────────────────────── */}
-      <aside
-        className="nav-panel"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: 380,
-          height: '100dvh',
-          zIndex: 1000,
-        }}
-      >
 
-        {/* Brand */}
-        <header className="panel-header">
-          <div className="brand">
-            <div className="brand-icon">🗺️</div>
-            <div className="brand-name">Nav<span>X</span></div>
+      {/* ── Side / Bottom Panel ─────────────────────────────────────────────── */}
+      <aside className="nav-panel" style={mobilePanelStyle}>
+
+        {/* Mobile drag handle + map toggle */}
+        {isMobile && (
+          <div className="mobile-handle" onClick={() => setShowMap(s => !s)}>
+            <div className="handle-bar" />
+            <span className="handle-label">
+              {showMap ? '▼ Expand panel' : '▲ Show map'}
+            </span>
           </div>
-          <div className="brand-tagline">GPS Navigation · Offline-Ready</div>
-        </header>
+        )}
+
+        {/* Brand — hide on mobile when map showing */}
+        {(!isMobile || !showMap) && (
+          <header className="panel-header">
+            <div className="brand">
+              <div className="brand-icon">🗺️</div>
+              <div className="brand-name">Nav<span>X</span></div>
+            </div>
+            <div className="brand-tagline">GPS Navigation · Offline-Ready</div>
+          </header>
+        )}
 
         {/* Panel tabs */}
         <div className="panel-tabs">
@@ -237,7 +265,6 @@ useEffect(() => {
         {/* ── ROUTE TAB ── */}
         {activeTab === 'route' && (
           <>
-            {/* Travel mode */}
             <div className="mode-tabs">
               {modes.map(({ mode, label, icon }) => (
                 <button
@@ -251,7 +278,6 @@ useEffect(() => {
               ))}
             </div>
 
-            {/* Search inputs */}
             <div className="search-section">
               {originCoords && destCoords && <div className="search-connector" />}
               <SearchInput
@@ -270,17 +296,14 @@ useEffect(() => {
                 onSelect={handleDestSelect}
                 variant="destination"
               />
-              {/* Save last selected place */}
               {lastSelected && (
                 <button
                   className="save-place-btn"
                   onClick={() => { setPendingSave(lastSelected); setActiveTab('favorites'); }}
-                  title="Save this place"
                 >♡ Save place</button>
               )}
             </div>
 
-            {/* Get Route */}
             {!isNavigating && (
               <div className="route-cta">
                 <button
@@ -295,7 +318,6 @@ useEffect(() => {
               </div>
             )}
 
-            {/* Route summary */}
             {route && !isNavigating && (
               <>
                 <div className="route-info-bar">
@@ -323,16 +345,17 @@ useEffect(() => {
               </>
             )}
 
-            {/* Empty state */}
             {!route && !isLoadingRoute && (
               <div className="empty-state">
                 <div className="empty-icon">🗺️</div>
                 <div className="empty-title">Plan your journey</div>
-                <div className="empty-sub">Type a place and pick from suggestions.<br />Driving, walking & cycling supported.</div>
+                <div className="empty-sub">
+                  Type a place and pick from suggestions.<br />
+                  Driving, walking & cycling supported.
+                </div>
               </div>
             )}
 
-            {/* Navigating directions */}
             {isNavigating && route && (
               <DirectionsPanel route={route} activeStep={currentStep} onStepClick={setCurrentStep} />
             )}
@@ -353,17 +376,7 @@ useEffect(() => {
       </aside>
 
       {/* ── Map ─────────────────────────────────────────────────────────────── */}
-      <main
-        className="map-container"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 380,
-          right: 0,
-          bottom: 0,
-          zIndex: 1,
-        }}
-      >
+      <main className="map-container" style={mobileMapStyle}>
         <MapView
           origin={originCoords}
           destination={destCoords}
@@ -397,17 +410,19 @@ useEffect(() => {
           <NavHUD route={route} currentStepIdx={currentStep} onStop={handleStopNavigation} />
         )}
 
-        {/* Status bar */}
-        <div className="status-bar">
-          <div className="status-dot" />
-          <span>NavX v1.0</span>
-          <span className="status-sep">|</span>
-          <span>OSM · OSRM · ORS</span>
-          <span className="status-sep">|</span>
-          <span>{getModeIcon(travelMode)} {travelMode.charAt(0).toUpperCase() + travelMode.slice(1)}</span>
-          {route && <><span className="status-sep">|</span><span style={{ color: '#00d4ff' }}>{route.summary}</span></>}
-          {voiceOn && <><span className="status-sep">|</span><span>🔊 Voice</span></>}
-        </div>
+        {/* Status bar — desktop only */}
+        {!isMobile && (
+          <div className="status-bar">
+            <div className="status-dot" />
+            <span>NavX v1.0</span>
+            <span className="status-sep">|</span>
+            <span>OSM · OSRM · ORS</span>
+            <span className="status-sep">|</span>
+            <span>{getModeIcon(travelMode)} {travelMode.charAt(0).toUpperCase() + travelMode.slice(1)}</span>
+            {route && <><span className="status-sep">|</span><span style={{ color: '#00d4ff' }}>{route.summary}</span></>}
+            {voiceOn && <><span className="status-sep">|</span><span>🔊 Voice</span></>}
+          </div>
+        )}
       </main>
 
       {/* Toasts */}
