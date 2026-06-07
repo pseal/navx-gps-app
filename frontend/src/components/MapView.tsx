@@ -30,11 +30,26 @@ function makeUserIcon() {
 function FixMap() {
   const map = useMap();
   useEffect(() => {
-    // Give the browser time to finish layout, then fix tile positions
-    const t1 = setTimeout(() => map.invalidateSize({ animate: false }), 100);
-    const t2 = setTimeout(() => map.invalidateSize({ animate: false }), 500);
-    const t3 = setTimeout(() => map.invalidateSize({ animate: false }), 1000);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    // Fire invalidateSize aggressively for iOS Safari/Chrome
+    const times = [0, 100, 300, 500, 1000, 2000];
+    const timers = times.map(ms =>
+      setTimeout(() => {
+        map.invalidateSize({ animate: false });
+      }, ms)
+    );
+
+    // Also fire on visibility change (tab switching, screen lock)
+    const onVisible = () => map.invalidateSize({ animate: false });
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('resize', onVisible);
+    window.addEventListener('orientationchange', onVisible);
+
+    return () => {
+      timers.forEach(clearTimeout);
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('resize', onVisible);
+      window.removeEventListener('orientationchange', onVisible);
+    };
   }, [map]);
   return null;
 }
