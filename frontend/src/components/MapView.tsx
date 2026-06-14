@@ -30,8 +30,11 @@ function makeUserIcon() {
 function FixMap() {
   const map = useMap();
   useEffect(() => {
-    // Give the browser time to finish layout, then fix tile positions
-    const t = setTimeout(() => map.invalidateSize({ animate: false }), 200);
+    const t = setTimeout(() => {
+      map.invalidateSize({ animate: false });
+      // Re-center after invalidation so tiles fill correctly
+      map.setView(map.getCenter(), map.getZoom(), { animate: false });
+    }, 200);
     return () => clearTimeout(t);
   }, [map]);
   return null;
@@ -81,7 +84,7 @@ const MapView: React.FC<MapViewProps> = ({
   return (
     <MapContainer
       center={center}
-      zoom={13}
+      zoom={5}
       zoomControl={false}
       style={{ width: '100%', height: '100%' }}
     >
