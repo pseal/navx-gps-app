@@ -30,12 +30,23 @@ function makeUserIcon() {
 function FixMap() {
   const map = useMap();
   useEffect(() => {
-    const t = setTimeout(() => {
+    // Use requestAnimationFrame to wait for actual paint
+    let raf: number;
+    const fix = () => {
       map.invalidateSize({ animate: false });
-      // Re-center after invalidation so tiles fill correctly
       map.setView(map.getCenter(), map.getZoom(), { animate: false });
-    }, 200);
-    return () => clearTimeout(t);
+    };
+    // Chain multiple frames to catch iOS delayed layout
+    raf = requestAnimationFrame(() =>
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          fix();
+          // One more after 300ms for iOS Chrome
+          setTimeout(fix, 300);
+        })
+      )
+    );
+    return () => cancelAnimationFrame(raf);
   }, [map]);
   return null;
 }
@@ -84,9 +95,15 @@ const MapView: React.FC<MapViewProps> = ({
   return (
     <MapContainer
       center={center}
-      zoom={5}
+      zoom={13}
       zoomControl={false}
       style={{ width: '100%', height: '100%' }}
+      whenReady={() => {
+      setTimeout(() => {
+        const container = document.querySelector('.leaflet-container') as any;
+        container?._leaflet_map?.invalidateSize({ animate: false });
+      }, 100);
+    }}
     >
       <FixMap />
 
