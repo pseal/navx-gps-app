@@ -341,7 +341,9 @@ const App: React.FC = () => {
         {/* Map view — full screen, only rendered when showing map */}
         <div style={{
           position: 'absolute', inset: 0,
-          display: mobileView === 'map' ? 'block' : 'none',
+          visibility: mobileView === 'map' ? 'visible' : 'hidden',
+          pointerEvents: mobileView === 'map' ? 'auto' : 'none',
+          zIndex: mobileView === 'map' ? 1 : 0,
         }}>
           {mapContent}
           {/* Back to panel button */}
@@ -360,7 +362,10 @@ const App: React.FC = () => {
         {/* Panel view — full screen, only rendered when showing panel */}
         <div style={{
           position: 'absolute', inset: 0,
-          display: mobileView === 'panel' ? 'flex' : 'none',
+          visibility: mobileView === 'panel' ? 'visible' : 'hidden',
+          pointerEvents: mobileView === 'panel' ? 'auto' : 'none',
+          zIndex: mobileView === 'panel' ? 2 : 0,
+          display: 'flex',
           flexDirection: 'column',
           background: '#060910',
           overflowY: 'auto',
